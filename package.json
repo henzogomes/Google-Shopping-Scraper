@@ -1,7 +1,8 @@
 {
-  "name": "learn-cheerio",
+  "name": "scraper",
   "version": "1.0.0",
   "description": "",
+  "repository": "https://github.com/Subway909/scraper.git",
   "main": "index.js",
   "type": "module",
   "scripts": {
