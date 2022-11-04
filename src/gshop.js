@@ -26,7 +26,7 @@ const _store = '.E5ocAb'
 const email = true
 const subject = '💸 Low Price Alert!'
 const to = process.env.TO
-const storeBlacklist = ['zoom', 'vivo', 'tiendamia.com.br', 'olx'];
+const storeBlacklist = ['zoom', 'vivo', 'tiendamia.com.br', 'olx', 'techinn.com', 'alifone.com.br', 'buscapé'];
 let body = ''
 let products = []
 let $ = await scrapeData(url, customHeaderRequest);
@@ -84,3 +84,4 @@ else {
 }
 
 console.log(body.replace(/<[^>]*>?/gm, ''))
+console.log(new Date().toLocaleString())

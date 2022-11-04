@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
 
-dotenv.config()
+dotenv.config({ path: '../.env' })
 
 export default function(to, subject, body) {
   let transporter = nodemailer.createTransport({
