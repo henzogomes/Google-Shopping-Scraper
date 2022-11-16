@@ -1,51 +1,53 @@
-import { createRequire } from "module";
-import sendMail from "./sendMail.js";
-import dotenv from "dotenv";
-import scrapeData from "./scraper.js";
+import { createRequire } from 'module';
+import sendMail from './sendMail.js';
+import dotenv from 'dotenv';
+import scrapeData from './scraper.js';
 
 dotenv.config();
 
 const require = createRequire(import.meta.url);
-require("log-timestamp")(function () {
-  return "[" + new Date().toLocaleString("en-US", { hour12: false }) + "] %s";
+require('log-timestamp')(function () {
+  return '[' + new Date().toLocaleString('en-US', { hour12: false }) + '] %s';
 });
 
 const userAgent = process.env.USER_AGENT;
 
 const customHeaderRequest = {
-  headers: { "User-Agent": userAgent },
+  headers: { 'User-Agent': userAgent },
 };
 
-const googleUrl = "https://www.google.com";
+const googleUrl = 'https://www.google.com';
+const searchTerm = process.argv[2] || process.env.SEARCH_TERM;
 const maxPrice = parseFloat(process.argv[3]) || parseFloat(process.env.MAX_PRICE);
 const minPrice = parseFloat(process.env.MIN_PRICE);
-const searchTerm = process.argv[2] || process.env.SEARCH_TERM;
-const url = "https://www.google.com/search?hl=pt-BR&tbm=shop&q=" + searchTerm;
-const _productContainer = ".KZmu8e";
-const _title = ".sh-np__product-title";
-const _price = ".T14wmb b";
-const _store = ".E5ocAb";
+const url = 'https://www.google.com/search?hl=pt-BR&tbm=shop&q=' + searchTerm;
+const _productContainer = '.KZmu8e';
+const _title = '.sh-np__product-title';
+const _price = '.T14wmb b';
+const _store = '.E5ocAb';
 const email = true;
-const subject = "💸 Low Price Alert!";
+const subject = '💸 Low Price Alert!';
 const to = process.env.TO;
-let body = "";
+let mailSent = '';
+let body = '';
 let products = [];
 let $ = await scrapeData(url, customHeaderRequest);
 const productContainers = $(_productContainer);
 
 const storeBlacklist = [
-  "zoom",
-  "vivo",
-  "tiendamia.com.br",
-  "olx",
-  "techinn.com",
-  "alifone.com.br",
-  "buscapé",
-  "ar free comercio",
-  "loja tim",
-  "top comercio de moveis",
-  "trocafone marketplace br",
-  "outlet do celular",
+  'zoom',
+  'vivo',
+  'tiendamia.com.br',
+  'olx',
+  'techinn.com',
+  'alifone.com.br',
+  'buscapé',
+  'ar free comercio',
+  'loja tim',
+  'top comercio de moveis',
+  'trocafone marketplace br',
+  'outlet do celular',
+  'saldão da informática'
 ];
 
 // adding products to array
@@ -56,8 +58,8 @@ $(productContainers).each((index, element) => {
     .text()
     .match(/[\d|\.|\,]+/)
     .join()
-    .replace(".", "")
-    .replace(",", ".");
+    .replace('.', '')
+    .replace(',', '.');
 
     price = parseFloat(price);
 
@@ -66,7 +68,7 @@ $(productContainers).each((index, element) => {
       title: el.find(_title).text(),
       price: price,
       store: el.find(_store).text(),
-      url: googleUrl + el.find("a").attr("href"),
+      url: googleUrl + el.find('a').attr('href'),
     });
   }
 });
@@ -76,9 +78,11 @@ products = products.filter((item) => {
   return !storeBlacklist.includes(item.store.toLowerCase());
 });
 
-// filter only results matching the search term
+let keywords = searchTerm.split(' ').filter(x => x.length > 1)
+
+// filter results containing every search term
 products = products.filter((item) =>
-  item.title.toLowerCase().includes(searchTerm)
+  keywords.every(v => item.title.toLowerCase().includes(v))
 );
 
 // sort by price
@@ -86,16 +90,16 @@ products = products.sort((a, b) =>
   a.price > b.price ? 1 : b.price > a.price ? -1 : 0
 );
 
-console.log("Products found: " + products.length);
+console.log('Products found: ' + products.length);
 
 // email body
 products.forEach((item) => {
-  let monetaryPrice = item.price.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
+  let monetaryPrice = item.price.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   });
 
-  let bold = item.price <= maxPrice ? `style='font-weight: bold;'` : "";
+  let bold = item.price <= maxPrice ? `style='font-weight: bold;'` : '';
 
   body += `<ul>
             <li><a href='${item.url}'>${item.title}</a></li>
@@ -110,10 +114,11 @@ products = products.filter((item) => item.price <= maxPrice);
 if (email && products.length > 0) {
   sendMail(to, subject, body);
 } else {
-  console.log("price too high, email not sent");
+  mailSent = 'Price too high, email not sent';
 }
 
-console.log(body.replace(/<[^>]*>?/gm, ""));
+console.log(body.replace(/<[^>]*>?/gm, ''));
 console.log(new Date().toLocaleString());
+console.log(mailSent)
 
 // node gshop.js 'search term' 'maxprice'
