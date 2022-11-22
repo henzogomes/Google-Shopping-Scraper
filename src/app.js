@@ -1,3 +1,5 @@
+// legacy implementation, see gshop.js for current implementation
+
 import { createRequire } from "module"
 import axios from "axios"
 import sendMail from "./sendMail.js"
