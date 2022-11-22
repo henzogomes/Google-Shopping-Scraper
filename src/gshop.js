@@ -47,7 +47,9 @@ const storeBlacklist = [
   'top comercio de moveis',
   'trocafone marketplace br',
   'outlet do celular',
-  'saldão da informática'
+  'saldão da informática',
+  'ri happy brinquedos',
+  'machado moveis e eletros'
 ];
 
 // adding products to array
