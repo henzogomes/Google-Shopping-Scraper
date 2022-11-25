@@ -19,6 +19,7 @@ const customHeaderRequest = {
 const googleUrl = 'https://www.google.com';
 const searchTerm = process.argv[2] || process.env.SEARCH_TERM;
 const maxPrice = parseFloat(process.argv[3]) || parseFloat(process.env.MAX_PRICE);
+let cannotHave = process.argv[4] || null
 const minPrice = parseFloat(process.env.MIN_PRICE);
 const url = 'https://www.google.com/search?hl=pt-BR&tbm=shop&q=' + searchTerm;
 const _productContainer = '.KZmu8e';
@@ -49,7 +50,10 @@ const storeBlacklist = [
   'outlet do celular',
   'saldão da informática',
   'ri happy brinquedos',
-  'machado moveis e eletros'
+  'machado moveis e eletros',
+  'casa guararapes comercial eireli',
+  'webfones',
+  'madeiramadeira'
 ];
 
 // adding products to array
@@ -86,6 +90,15 @@ let keywords = searchTerm.split(' ').filter(x => x.length > 1)
 products = products.filter((item) =>
   keywords.every(v => item.title.toLowerCase().includes(v))
 );
+
+if(cannotHave) {
+  cannotHave = cannotHave.split(',')
+
+  // filter
+  products = products.filter((item) =>
+    cannotHave.every(v => !item.title.toLowerCase().includes(v))
+  );
+}
 
 // sort by price
 products = products.sort((a, b) =>
