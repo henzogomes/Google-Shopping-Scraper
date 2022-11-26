@@ -142,4 +142,4 @@ console.log(body.replace(/<[^>]*>?/gm, ''));
 console.log(new Date().toLocaleString());
 console.log(mailSent)
 
-// node app.js 'search term' 'maxprice' 'minprice' 'cannotHave'
+// node app.js 'search term' 'maxprice' 'minprice' 'cannot,have,these,words'
