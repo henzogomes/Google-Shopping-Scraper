@@ -2,6 +2,7 @@ import { createRequire } from 'module';
 import sendMail from './sendMail.js';
 import dotenv from 'dotenv';
 import scrapeData from './scraper.js';
+import { storeBlacklist } from './storeBlacklist.js';
 
 dotenv.config();
 
@@ -39,28 +40,6 @@ let body = '';
 let products = [];
 let $ = await scrapeData(url, customHeaderRequest);
 const productContainers = $(_productContainer);
-
-const storeBlacklist = [
-  'zoom',
-  'vivo',
-  'tiendamia.com.br',
-  'olx',
-  'techinn.com',
-  'alifone.com.br',
-  'buscapé',
-  'ar free comercio',
-  'loja tim',
-  'top comercio de moveis',
-  'trocafone marketplace br',
-  'outlet do celular',
-  'saldão da informática',
-  'ri happy brinquedos',
-  'machado moveis e eletros',
-  'casa guararapes comercial eireli',
-  'webfones',
-  'madeiramadeira',
-  'melo e lopes comércio'
-];
 
 // adding products to array
 $(productContainers).each((index, element) => {
