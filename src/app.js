@@ -19,8 +19,8 @@ const customHeaderRequest = {
 
 const googleUrl = 'https://www.google.com';
 const searchTerm = process.argv[2];
-const maxPrice = parseFloat(process.argv[3]) || parseFloat(process.env.MAX_PRICE);
-const minPrice = process.argv[4] || null
+const maxPrice = parseFloat(process.argv[3]) || 0;
+const minPrice = process.argv[4] || 0
 let cannotHave = process.argv[5] || null
 
 if (!searchTerm) {
