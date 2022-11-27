@@ -17,7 +17,9 @@ let storeBlacklist = [
   'casa guararapes comercial eireli',
   'webfones',
   'madeiramadeira',
-  'melo e lopes comércio'
+  'melo e lopes comércio',
+  'Pet shop rosa',
+  'Lojas Presidente'
 ];
 
 storeBlacklist = storeBlacklist.map(item => item.toLowerCase())
