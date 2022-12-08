@@ -5,4 +5,4 @@ node 18
 
 npm install
 
-run node app.js 'search term' 'maxprice' 'minprice' 'cannot,have,these,words'
+run node app.js 'search term' 'maxprice' 'minprice' 'cannot,have,these,words' true

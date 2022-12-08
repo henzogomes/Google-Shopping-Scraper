@@ -3,6 +3,7 @@ import sendMail from './sendMail.js';
 import dotenv from 'dotenv';
 import scrapeData from './scraper.js';
 import { storeBlacklist } from './storeBlacklist.js';
+import { storeWhitelist } from './storeWhitelist.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ const searchTerm = process.argv[2];
 const maxPrice = parseFloat(process.argv[3]) || 0;
 const minPrice = process.argv[4] || 0
 let cannotHave = process.argv[5] || null
+let isWhiteList = process.argv[6] || false
 
 if (!searchTerm) {
   throw new Error('Please provide a search term')
@@ -64,10 +66,18 @@ $(productContainers).each((index, element) => {
   }
 });
 
-// filter blacklisted stores
-products = products.filter((item) => {
-  return !storeBlacklist.includes(item.store.toLowerCase());
-});
+if (!isWhiteList) {
+  // filter blacklisted stores
+  products = products.filter((item) => {
+    return !storeBlacklist.includes(item.store.toLowerCase());
+  });
+}
+else {
+  // filter whitelisted stores
+  products = products.filter((item) => {
+    return storeWhitelist.includes(item.store.toLowerCase());
+  });
+}
 
 let keywords = searchTerm.split(' ').filter(x => x.length > 1)
 
@@ -121,4 +131,4 @@ console.log(body.replace(/<[^>]*>?/gm, ''));
 console.log(new Date().toLocaleString());
 console.log(mailSent)
 
-// node app.js 'search term' 'maxprice' 'minprice' 'cannot,have,these,words'
+// node app.js 'search term' 'maxprice' 'minprice' 'cannot,have,these,words' isWhiteList
