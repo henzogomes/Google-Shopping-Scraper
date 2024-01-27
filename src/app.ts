@@ -1,29 +1,23 @@
-import { createRequire } from 'module';
-import sendMail from './sendMail.js';
-import dotenv from 'dotenv';
+import { sendMail, generateEmailBody } from './sendMail.js';
+import { config } from 'dotenv';
 import scrapeData from './scraper.js';
 import { storeBlacklist } from './storeBlacklist.js';
 import { storeWhitelist } from './storeWhitelist.js';
 
-dotenv.config();
+config();
 
-const require = createRequire(import.meta.url);
-require('log-timestamp')(function () {
-  return '[' + new Date().toLocaleString('en-US', { hour12: false }) + '] %s';
-});
-
-const userAgent = process.env.USER_AGENT;
+const userAgent: string = process.env.USER_AGENT;
 
 const customHeaderRequest = {
   headers: { 'User-Agent': userAgent },
 };
 
-const googleUrl = 'https://www.google.com';
-const searchTerm = process.argv[2];
-const maxPrice = parseFloat(process.argv[3]) || 0;
-const minPrice = process.argv[4] || 0
-let cannotHave = process.argv[5] || null
-let isWhiteList = process.argv[6] || false
+const googleUrl: string = 'https://www.google.com';
+const searchTerm: string = process.argv[2];
+const maxPrice: number = parseFloat(process.argv[3]) || 0;
+const minPrice: number = parseFloat(process.argv[4]) || 0
+let cannotHave: string = process.argv[5] || null
+let isWhiteList: boolean = process.argv[6] === 'true' ? true : false;
 
 if (!searchTerm) {
   throw new Error('Please provide a search term')
@@ -39,14 +33,17 @@ const subject = `💸 Low Price Alert! - ${searchTerm}`;
 const to = process.env.TO;
 let mailSent = '';
 let body = '';
-let products = [];
+let products: Record<string, any>[] = [];
 let $ = await scrapeData(url, customHeaderRequest);
 const productContainers = $(_productContainer);
+
+console.log(new Date().toLocaleString());
+console.log('Search Term:', searchTerm, '\nMax Price:', maxPrice, '\nMin Price:', minPrice, '\nCannot Have:', cannotHave, '\nIs Whitelist:', isWhiteList, '\nProducts found:', products.length);
 
 // adding products to array
 $(productContainers).each((index, element) => {
   let el = $(element);
-  let price = $(element)
+  let priceElement = $(element)
     .find(_price)
     .text()
     .match(/[\d|\.|\,]+/)
@@ -54,7 +51,7 @@ $(productContainers).each((index, element) => {
     .replace('.', '')
     .replace(',', '.');
 
-    price = parseFloat(price);
+    let price = parseFloat(priceElement);
 
   if (price > minPrice) {
     products.push({
@@ -87,11 +84,11 @@ products = products.filter((item) =>
 );
 
 if(cannotHave) {
-  cannotHave = cannotHave.split(',')
+  let _cannotHave = cannotHave.split(',')
 
   // filter
   products = products.filter((item) =>
-    cannotHave.every(v => !item.title.toLowerCase().includes(v))
+    _cannotHave.every(v => !item.title.toLowerCase().includes(v))
   );
 }
 
@@ -103,20 +100,7 @@ products = products.sort((a, b) =>
 console.log('Products found: ' + products.length);
 
 // email body
-products.forEach((item) => {
-  let monetaryPrice = item.price.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-
-  let bold = item.price <= maxPrice ? `style='font-weight: bold;'` : '';
-
-  body += `<ul>
-            <li><a href='${item.url}'>${item.title}</a></li>
-            <li ${bold} >Price: ${monetaryPrice}</li>
-            <li>Store: ${item.store}</li>
-          </ul>`;
-});
+body = generateEmailBody(products, maxPrice)
 
 // filter by max price
 products = products.filter((item) => item.price <= maxPrice);
@@ -127,8 +111,6 @@ if (email && products.length > 0) {
   mailSent = 'Price too high, email not sent';
 }
 
-console.log(body.replace(/<[^>]*>?/gm, ''));
+console.log(body.replace(/<[^>]*>?/gm, '')); // removes html tags from console.log
 console.log(new Date().toLocaleString());
 console.log(mailSent)
-
-// node app.js 'search term' 'maxprice' 'minprice' 'cannot,have,these,words' isWhiteList
