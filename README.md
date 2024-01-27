@@ -2,6 +2,8 @@
 
 This project is a web scraping tool designed to scrape product data from Google Shopping (Brazil). It allows you to specify a search term, a maximum price, a minimum price, words that should not be included in the product title, and a flag to indicate whether the product is on a whitelist of stores.
 
+<img src="_readme/_readme01.jpg" width=400 />
+
 ## Prerequisites
 
 - Node.js 18
